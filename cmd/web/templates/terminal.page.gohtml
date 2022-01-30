@@ -5,9 +5,10 @@
 {{end}}
 
 {{define "content"}}
-<h2 class="mt-3 text-center">Virtual Terminal</h2>
+<h2 class="mt-3 text-center">Passa o cartão aí na moralzinha</h2>
 <hr>
 
+<div class="alert alert-danger text-center d-none" id="card-messages"></div>
 <form action="/payment-succeeded" method="post"
     name="charge_form" id="charge_form"
     class="d-block needs-validation charge-form"
@@ -42,7 +43,11 @@
     <hr>
 
     <a id="pay-button" href="javascript:void(0)" class="btn btn-primary" onclick="val()">Charge Card</a>
-
+		<div id="processing-payment" class="text-center d-none">
+			<div class="spinner-border text-primary" role="status">
+				<span class="visually-hidden">Loading...</span>
+			</div>
+		</div>
 
 </form>
 
@@ -52,8 +57,53 @@
     <script src="https://js.stripe.com/v3/"></script>
 
     <script>
-    function val() {
+		let card;
+		let string;
+		const cardMessages = document.getElementById("card-messages");
+    const payButton = document.getElementById("pay-button");
+    const processing = document.getElementById("processing-payment");
 
+		stripe = Stripe('pk_test_51KN1aDGeUKuQUIhRukHq6no7oqBLhJG74Bhf2bWghD0R5v3jExmZ5KKNtWziQZFnQ3C38gZFthkUoZAYHymEmL8S00AJGRa4dS');
+    
+		function val() {
+			let form = document.getElementById("charge_form");
+        if (form.checkValidity() === false) {
+            this.event.preventDefault();
+            this.event.stopPropagation();
+            form.classList.add("was-validated");
+            return;
+        }
+        form.classList.add("was-validated");
     }
+
+		(function() {
+        // create stripe & elements
+        const elements = stripe.elements();
+        const style = {
+            base: {
+                fontSize: '16px',
+                lineHeight: '24px'
+            }
+        };
+
+        // create card entry
+        card = elements.create('card', {
+            style: style,
+            hidePostalCode: true,
+        });
+        card.mount("#card-element");
+
+        // check for input errors
+        card.addEventListener('change', function(event) {
+            var displayError = document.getElementById("card-errors");
+            if (event.error) {
+                displayError.classList.remove('d-none');
+                displayError.textContent = event.error.message;
+            } else {
+                displayError.classList.add('d-none');
+                displayError.textContent = '';
+            }
+        });
+    })();
     </script>
 {{end}}

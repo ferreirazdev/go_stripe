@@ -1,5 +1,5 @@
-STRIPE_SECRET=pk_test_51KN1aDGeUKuQUIhRukHq6no7oqBLhJG74Bhf2bWghD0R5v3jExmZ5KKNtWziQZFnQ3C38gZFthkUoZAYHymEmL8S00AJGRa4dS
-STRIPE_KEY=sk_test_51KN1aDGeUKuQUIhRRE2zQFzlk52qVMXkuZsA2j2yo9uatg1ZIhZ7p4oEb4jaDsxbmdXPm2VUEF66iLtMkIruHrDr00qqWAXmqy
+STRIPE_SECRET=sk_test_51KN1aDGeUKuQUIhRRE2zQFzlk52qVMXkuZsA2j2yo9uatg1ZIhZ7p4oEb4jaDsxbmdXPm2VUEF66iLtMkIruHrDr00qqWAXmqy
+STRIPE_KEY=pk_test_51KN1aDGeUKuQUIhRukHq6no7oqBLhJG74Bhf2bWghD0R5v3jExmZ5KKNtWziQZFnQ3C38gZFthkUoZAYHymEmL8S00AJGRa4dS
 GOSTRIPE_PORT=4000
 API_PORT=4001
 DSN=root@tcp(localhost:3306)/widgets?parseTime=true&tls=false
@@ -34,13 +34,13 @@ start: start_front start_back
 ## start_front: starts the front end
 start_front: build_front
 	@echo "Starting the front end..."
-	@env STRIPE_KEY=${STRIPE_KEY} STRIPE_SECRET=${STRIPE_SECRET} ./dist/gostripe -port=${GOSTRIPE_PORT} &
+	@env STRIPE_KEY=${STRIPE_KEY} STRIPE_SECRET=${STRIPE_SECRET} ./dist/gostripe -port=${GOSTRIPE_PORT}
 	@echo "Front end running!"
 
 ## start_back: starts the back end
 start_back: build_back
 	@echo "Starting the back end..."
-	@env STRIPE_KEY=${STRIPE_KEY} STRIPE_SECRET=${STRIPE_SECRET} ./dist/gostripe_api -port=${API_PORT}  &
+	@env STRIPE_KEY=${STRIPE_KEY} STRIPE_SECRET=${STRIPE_SECRET} ./dist/gostripe_api -port=${API_PORT}
 	@echo "Back end running!"
 
 ## stop: stops the front and back end
@@ -50,12 +50,12 @@ stop: stop_front stop_back
 ## stop_front: stops the front end
 stop_front:
 	@echo "Stopping the front end..."
-	@-pkill -SIGTERM -f "gostripe -port=${GOSTRIPE_PORT}"
+	@kill -9 `sudo lsof -t -i:${GOSTRIPE_PORT}`
 	@echo "Stopped front end"
 
 ## stop_back: stops the back end
 stop_back:
 	@echo "Stopping the back end..."
-	@-pkill -SIGTERM -f "gostripe_api -port=${API_PORT}"
+	@kill -9 `sudo lsof -t -i:${API_PORT}`
 	@echo "Stopped back end"
 

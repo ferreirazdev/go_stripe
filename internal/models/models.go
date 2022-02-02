@@ -1,21 +1,22 @@
 package models
 
 import (
+	"context"
 	"database/sql"
 	"time"
 )
 
-type DBModels struct {
+type DBModel struct {
 	DB *sql.DB
 }
 
 type Models struct {
-	DB DBModels
+	DB DBModel
 }
 
 func NewModels(db *sql.DB) Models {
 	return Models{
-		DB: DBModels{DB: db},
+		DB: DBModel{DB: db},
 	}
 }
 
@@ -27,4 +28,18 @@ type Widget struct {
 	Price          int       `json:"price"`
 	CreatedAt      time.Time `json:"-"`
 	UpdatedAt      time.Time `json:"-"`
+}
+
+func (m *DBModel) GetWidget(id int) (Widget, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	var widget Widget
+
+	row := m.DB.QueryRowContext(ctx, "select id, name from widgets where id = ?", id)
+	err := row.Scan(&widget.ID, &widget.Name)
+	if err != nil {
+		return widget, err
+	}
+	return widget, nil
 }
